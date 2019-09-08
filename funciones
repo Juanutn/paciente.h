@@ -1,0 +1,312 @@
+#ifndef FUNCIONPACIENTE_H_INCLUDED
+#define FUNCIONPACIENTE_H_INCLUDED
+#include <cstdlib>
+#include <cstdio>
+#include <conio.h>
+struct fecha
+{
+    int dia;
+    int mes;
+    int ano;
+};
+struct paciente
+{
+    int dni;
+    char apellido[50];
+    char nombre[50];
+    char genero;
+    int obrasocial;
+    bool estado = 1;
+    fecha cambio;
+};
+
+///cargar
+bool nuevopaciente (struct paciente *a)
+{
+    cout << "DNI : ";
+    cin >>a->dni;
+
+    cout << "Apellido : ";
+    cin >>a->apellido;
+
+
+    cout << "Nombre : ";
+    cin >>a->nombre;
+
+
+    cout<<"SOLO INGRESE H (HOMBRE) O M(MUJER) o O(OTROS)"<<endl;
+    cout << "Genero : ";
+    cin >>a->genero;
+
+    cout << "Fecha de nacimiento"<<endl;
+    cout << "Dia : ";
+    cin >>a->cambio.dia;
+    cout << "Mes : ";
+    cin >>a->cambio.mes;
+    cout << "Ano : ";
+    cin >>a->cambio.ano;
+
+    cout << "Obra social : ";
+    cin >>a->obrasocial;
+
+    return true;
+}
+
+bool grabarpaciente(struct paciente a)
+{
+
+    FILE *p;
+    p=fopen("paciente.dat", "ab");
+    if(p==NULL)
+        return false;
+    bool escribio=fwrite(&a, sizeof (a), 1, p);
+    fclose(p);
+    return escribio;
+}
+
+bool altapaciente()
+{
+    struct paciente a;
+
+    struct fecha b;
+
+    nuevopaciente(&a);
+
+    ///VERIFICACION...
+
+    if (a.dni>0){
+
+    }
+    else {
+        cout << "NO SE PUDO AGREGAR PACIENTE VERIFICACION INCORRECTA"<<endl;
+        return false;
+    }
+    if (a.obrasocial>0&&a.obrasocial<=50){
+
+    }
+    else {
+        cout << "NO SE PUDO AGREGAR PACIENTE VERIFICACION INCORRECTA"<<endl;
+        return false;
+    }
+    if ((a.cambio.dia>0&&a.cambio.dia<=31)&&(a.cambio.mes>0&&a.cambio.mes<=12)&&(a.cambio.ano>0&&a.cambio.ano<=2040)){
+
+    }
+    else {
+        cout << "NO SE PUDO AGREGAR PACIENTE VERIFICAION INCORRECTA"<<endl;
+        return false;
+    }
+
+    if(grabarpaciente(a)==true)
+    {
+        cout<<"PACIENTE AGREGADO."<<endl;
+
+    }
+    else
+    {
+        cout<<"NO SE PUDO AGREGAR PACIENTE."<<endl;
+
+    }
+
+    system("pause");
+
+}
+
+///listar
+void mostrarpaciente(struct paciente a)
+{
+    cout<<"DNI: ";
+    cout<< a.dni <<endl;
+
+    cout<<"APELLIDO: ";
+    cout<<a.apellido<<endl;
+
+    cout<<"NOMBRE: ";
+    cout<<a.nombre<<endl;
+
+    cout<<"GENERO: ";
+    if( a.genero=='m'||a.genero=='M')
+    {
+        cout<<"MUJER"<<endl;
+    }
+    if( a.genero=='h'||a.genero=='H')
+    {
+        cout<<"HOMBRE"<<endl;
+    }
+    else {
+        cout << "OTROS"<<endl;
+    }
+
+    cout<<"FECHA DE NACIMIENTO:";
+    cout<<a.cambio.dia<<"/"<<a.cambio.mes<<"/"<<a.cambio.ano<<endl;
+
+    cout<<"OBRA SOCIAL: ";
+    cout<<a.obrasocial;
+
+}
+
+void listarpaciente()
+{
+    FILE *p;
+
+    struct paciente a;
+
+    p=fopen("paciente.dat", "rb");
+
+    if(p==NULL)
+    {
+        cout<<"ERROR DE ARCHIVO"<<endl;
+        return;
+    }
+
+    while(fread(&a, sizeof (paciente), 1, p)==1)
+    {
+        mostrarpaciente(a);
+        cout<<endl<<endl;
+    }
+
+    fclose(p);
+
+
+    system("pause");
+}
+
+///buscar paciente
+
+void pacientedni ()
+{
+
+    struct paciente a;
+
+    int nrodni;
+
+
+    FILE *dni = fopen ("paciente.dat","rb");
+
+    if ( dni == NULL)
+    {
+
+        cout << "No se pudo abrir el archivo.\n";
+
+
+    }
+
+    cout << "Ingresar numero de DNI: ";
+    cin >> nrodni;
+
+    while (fread(&a,sizeof (paciente),1,dni)==1)
+    {
+
+        if (a.dni==nrodni)
+        {
+
+
+            cout << "\nDNI: ";
+            cout << a.dni << "\n";
+
+            cout << "APELLIDO: ";
+            cout << a.apellido<< "\n";
+
+            cout << "NOMBRE: ";
+            cout << a.nombre<< "\n";
+
+            cout << "GENERO: ";
+            cout << a.genero << "\n";
+
+            cout << "FECHA NACIMIENTO: ";
+            cout << a.cambio.dia<<"/";
+            cout << a.cambio.mes<<"/";
+            cout << a.cambio.ano;
+            cout <<endl;
+            cout << "OBRA SOCIAL: ";
+            cout << a.obrasocial<< "\n\n";
+
+
+            fclose(dni);
+
+
+        }
+
+    }
+
+
+    fclose (dni);
+
+
+
+}
+int modificarpaciente (){
+
+struct paciente a;
+
+int documento;
+
+
+FILE *modificar = fopen("paciente.dat","rb+");
+
+if (modificar == NULL){
+    cout << "ERROR DE ARCHIVO";
+    return 0;
+}
+
+cout << "Ingresar DNI : ";
+cin >>documento;
+
+while (fread(&a,sizeof (paciente),1,modificar)==1){
+    if (a.dni==documento){
+
+       nuevopaciente(&a);
+        cout << "Modificado correctamente."<<endl;
+
+        fseek(modificar,ftell(modificar)-sizeof a,0);
+
+        fwrite(&a,sizeof (paciente),1,modificar);
+
+        fclose(modificar);
+
+        return 1;
+    }
+}
+
+fclose(modificar);
+
+return 0;
+}
+int eliminarpaciente (){
+
+struct paciente a;
+
+int docu;
+
+FILE *kill = fopen("paciente.dat","rb+");
+
+if (kill == NULL){
+    cout << "ERROR DE ARCHIVO";
+    return 0;
+}
+
+cout << "NUMERO DE DOCUMENTO : ";
+cin >>docu;
+
+while (fread(&a,sizeof (paciente),1,kill)==1){
+    if (a.dni==docu){
+
+
+        cout << "Eliminado correctamente."<<endl;
+        a.estado = 0;
+
+        fseek(kill,ftell(kill)-sizeof a,0);
+
+        fwrite(&a,sizeof (paciente),1,kill);
+
+        fclose(kill);
+
+        return 1;
+    }
+}
+
+fclose(kill);
+
+return 0;
+}
+
+#endif // FUNCIONPACIENTE_H_INCLUDED
